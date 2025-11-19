@@ -6,8 +6,12 @@ import os
 import numpy as np
 
 def read_data(file_input=r'../in_files/default.in'):
-    print(f"\nReading data from {file_input}...\n" + "*"*40 + "\n")
-    with open(file_input, 'r') as f:
+    # Resolve path relative to this script
+    script_dir = os.path.dirname(os.path.abspath(__file__))
+    input_path = os.path.join(script_dir, file_input)
+
+    print(f"\nReading data from {os.path.relpath(input_path, script_dir)}\n" + "*"*40 + "\n")
+    with open(input_path, 'r') as f:
         lines = f.readlines()
 
     arr = []
@@ -23,25 +27,27 @@ def read_data(file_input=r'../in_files/default.in'):
         arr.append(temp)
 
     print("Data read successfully.")
-    pretty_print(arr, file_input=file_input)
+    # pretty_print(arr, file_input=file_input)
+    
+    return np.array(arr)
 
-def pretty_print(begin_arr,solution_arr=None, file_input=r'../in_files/default.in'):
+def pretty_print(begin_arr=None,solutions=None, file_input=r'../in_files/default.in',file_output=r'../out_files/default/output.txt',n=0):
     """Pretty prints the matrix and saves it to an output file."""
-
+    """Use append to add to existing file instead of overwriting."""
+    
+    pretty_string = ""
     pretty_string = convert_to_print(begin_arr)
+    pretty_string += '\n'
+    if solutions is not None:
+        if n != 0:
+            solutions = solutions[:n]
+        for sol in solutions:
+            pretty_string += convert_to_print(map_solution_dict(sol, begin_arr.shape[0], begin_arr.shape[1]))
 
-    print(pretty_string)
-
-    if solution_arr is not None:
-        pretty_string += "Solution:\n"
-        pretty_string += convert_to_print(solution_arr)
-
-    base_name = os.path.splitext(os.path.basename(file_input))[0]
-    output_path = os.path.join('..', 'out_files', base_name, 'output.txt')
-    os.makedirs(os.path.dirname(output_path), exist_ok=True)
-    with open(output_path, 'w') as f:
+    with open(file_output, 'w') as f:
         f.write(pretty_string)
-    print(f"Output saved to {output_path}")
+
+    print(f"Output saved to {file_output}")
 
 def convert_to_print(arr):
     pretty_string = "---".join(["+" for _ in range(len(arr[0]) + 1)]) + "\n"
@@ -55,5 +61,15 @@ def convert_to_print(arr):
     pretty_string += "---".join(["+" for _ in range(len(row) + 1)]) + "\n"
     return pretty_string
 
-if __name__ == "__main__":
-    read_data()
+def map_solution_dict(solution:np.array, rows:int, cols:int):
+    """Maps the solution dictionary to a 2D numpy array."""
+    sol_array = np.full((rows, cols), None)
+    for key, value in solution.items():
+        var_type, i, j = key.split('_')
+        i, j = int(i), int(j)
+        if value == 1:
+            sol_array[i, j] = var_type
+    return sol_array
+
+# if __name__ == "__main__":
+#     print(read_data())
