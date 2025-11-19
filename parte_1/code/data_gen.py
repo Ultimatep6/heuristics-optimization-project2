@@ -25,7 +25,25 @@ def read_data(file_input=r'../in_files/default.in'):
     print("Data read successfully.")
     pretty_print(arr, file_input=file_input)
 
-def pretty_print(arr, file_input=r'../in_files/default.in'):
+def pretty_print(begin_arr,solution_arr=None, file_input=r'../in_files/default.in'):
+    """Pretty prints the matrix and saves it to an output file."""
+
+    pretty_string = convert_to_print(begin_arr)
+
+    print(pretty_string)
+
+    if solution_arr is not None:
+        pretty_string += "Solution:\n"
+        pretty_string += convert_to_print(solution_arr)
+
+    base_name = os.path.splitext(os.path.basename(file_input))[0]
+    output_path = os.path.join('..', 'out_files', base_name, 'output.txt')
+    os.makedirs(os.path.dirname(output_path), exist_ok=True)
+    with open(output_path, 'w') as f:
+        f.write(pretty_string)
+    print(f"Output saved to {output_path}")
+
+def convert_to_print(arr):
     pretty_string = "---".join(["+" for _ in range(len(arr[0]) + 1)]) + "\n"
     for row in arr:
         for i, char in enumerate(row):
@@ -35,15 +53,7 @@ def pretty_print(arr, file_input=r'../in_files/default.in'):
             else:
                 pretty_string += f"| {cell} "
     pretty_string += "---".join(["+" for _ in range(len(row) + 1)]) + "\n"
-
-    print(pretty_string)
-
-    base_name = os.path.splitext(os.path.basename(file_input))[0]
-    output_path = os.path.join('..', 'out_files', base_name, 'output.txt')
-    os.makedirs(os.path.dirname(output_path), exist_ok=True)
-    with open(output_path, 'w') as f:
-        f.write(pretty_string)
-    print(f"Output saved to {output_path}")
+    return pretty_string
 
 if __name__ == "__main__":
     read_data()
