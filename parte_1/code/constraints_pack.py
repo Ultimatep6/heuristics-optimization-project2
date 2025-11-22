@@ -7,9 +7,11 @@ def no_three_vertical(u, c, d):
     return not(u and c and d)
         
 def same_cell_const(x, o):
+    """Constraint: A cell cannot be both X and O"""
     return bool((not(x) and o) or (x and not(o)))
 
 def num_var_const(*args,arg=False):
+    """Constraint: Equal number of X and O in a row/column"""
     if arg:
         args = args[0]
     n = len(args) // 2

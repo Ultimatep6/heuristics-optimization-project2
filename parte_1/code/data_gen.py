@@ -29,6 +29,7 @@ def read_data(file_input=r'../in_files/default.in'):
     print("Data read successfully.")
     # pretty_print(arr, file_input=file_input)
     
+    
     return np.array(arr)
 
 def pretty_print(begin_arr=None,solutions=None, file_input=r'../in_files/default.in',file_output=r'../out_files/default/output.txt',n=0):
@@ -37,13 +38,16 @@ def pretty_print(begin_arr=None,solutions=None, file_input=r'../in_files/default
     
     pretty_string = ""
     pretty_string = convert_to_print(begin_arr)
-    pretty_string += '\n'
+    
     if solutions is not None:
         if n != 0:
             solutions = solutions[:n]
-        for sol in solutions:
-            pretty_string += convert_to_print(map_solution_dict(sol, begin_arr.shape[0], begin_arr.shape[1]))
+            for sol in solutions:
+                pretty_string += '\n'
+                pretty_string += convert_to_print(map_solution_dict(sol, begin_arr.shape[0], begin_arr.shape[1]))
 
+            
+        
     with open(file_output, 'w') as f:
         f.write(pretty_string)
 
@@ -70,6 +74,3 @@ def map_solution_dict(solution:np.array, rows:int, cols:int):
         if value == 1:
             sol_array[i, j] = var_type
     return sol_array
-
-# if __name__ == "__main__":
-#     print(read_data())
