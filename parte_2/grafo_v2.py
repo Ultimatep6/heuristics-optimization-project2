@@ -43,7 +43,7 @@ def load_paths():
 if __name__ == "__main__":
     print("Loading nodes...")
     nodes = load_nodes()
-    print(f"Loaded {len(nodes)} nodes.\n")
+    print(f"Loaded {len(nodes.keys())} nodes.\n")
 
     print("Loading paths...")
     paths = load_paths()
