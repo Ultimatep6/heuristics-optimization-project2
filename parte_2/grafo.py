@@ -2,7 +2,7 @@ import networkx as nx
 from tqdm import tqdm
 
 
-def parse_dimacs_gr(f):
+def parse_gr(f):
     DG = nx.DiGraph()
 
     for raw in tqdm(f, desc="Parsing .gr"):
@@ -31,7 +31,7 @@ def parse_dimacs_gr(f):
     return DG
 
 
-def parse_dimacs_co(f):
+def parse_co(f):
     """
     Parse .co coordinate content and return dict: node_id -> (x, y)
     """
@@ -62,13 +62,13 @@ if __name__ == "__main__":
         "/home/agentolek/UC3M/heuristics/heuristics-optimization-project2/parte_2/data/USA-road-d.BAY.gr",
         "r",
     ) as f:
-        DG = parse_dimacs_gr(f)
+        DG = parse_gr(f)
 
     with open(
         "/home/agentolek/UC3M/heuristics/heuristics-optimization-project2/parte_2/data/USA-road-d.BAY.co",
         "r",
     ) as f:
-        coords = parse_dimacs_co(f)
+        coords = parse_co(f)
 
     print(f"Attaching coords for {len(coords)} nodes (if present)...")
     nx.set_node_attributes(
