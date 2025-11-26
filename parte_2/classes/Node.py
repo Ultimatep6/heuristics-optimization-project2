@@ -1,61 +1,84 @@
 from dataclasses import dataclass
+import math
+
 
 @dataclass
 class Node:
-    _lat : int = 0
-    _long : int = 0
-    _cost : int = 0
-    _parent : 'Node' = None
+    id: int
+    _lat: int = 0
+    _long: int = 0
+    _cost: float = math.inf
+    _heuristic_cost: float = 0
+    _parent: "Node" = None
 
-    def __le__(self, other:'Node'):
-        return self.cost < other.cost
+    def __hash__(self) -> int:
+        return hash(self.id)
+
+    def __eq__(self, value: object) -> bool:
+        if isinstance(value, Node):
+            return self.id == value.id
+        raise NotImplementedError
+
+    def __le__(self, other: "Node"):
+        return self.cost + self._heuristic_cost < other.cost + other._heuristic_cost
 
     @property
     def lat(self):
         return self._lat
-    
+
     @lat.setter
-    def lat(self, value:int):
-        if not isinstance(value,int):
-            raise TypeError('lat must be a int')
+    def lat(self, value: int):
+        if not isinstance(value, int):
+            raise TypeError("lat must be a int")
         else:
             self._lat = value
 
     @property
     def long(self):
         return self._long
+
     @long.setter
-    def long(self, value:int):
-        if not isinstance(value,int):
-            raise TypeError('long must be a int')
+    def long(self, value: int):
+        if not isinstance(value, int):
+            raise TypeError("long must be a int")
         else:
             self._long = value
 
     @property
     def parent(self):
         return self._parent
-    
+
     @parent.setter
     def parent(self, value):
-        if not isinstance(value, 'Node'):
-            raise TypeError('parent must be a Node')
+        if not isinstance(value, "Node"):
+            raise TypeError("parent must be a Node")
         elif value == self:
-            raise ValueError('parent cannot be self')
+            raise ValueError("parent cannot be self")
         else:
             self._parent = value
-    
+
     @property
     def cost(self):
         return self._cost
-    
+
     @cost.setter
-    def cost(self, value:int):
-        if not isinstance(value,int):
-            raise TypeError('cost must be a int')
+    def cost(self, value: float):
+        if not isinstance(value, float):
+            raise TypeError("cost must be a float")
         elif value < 0:
-            raise ValueError('cost must be a non-negative integer')
+            raise ValueError("cost must be a non-negative integer")
         else:
             self._cost = value
 
+    @property
+    def heuristic_cost(self):
+        return self._heuristic_cost
 
-    
+    @heuristic_cost.setter
+    def heuristic_cost(self, value: float):
+        if not isinstance(value, float):
+            raise TypeError("heuristic cost must be a float")
+        elif value < 0:
+            raise ValueError("heuristic cost must be a non-negative integer")
+        else:
+            self._heuristic_cost = value
