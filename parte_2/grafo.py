@@ -1,80 +1,50 @@
-import networkx as nx
-from tqdm import tqdm
+from classes.Node import Node
+from classes.Path import Path
+import pathlib
+
+SCRIPT_DIR = pathlib.Path(__file__).resolve().parent
 
 
-def parse_gr(f):
-    DG = nx.DiGraph()
+def load_nodes():
+    nodeDict = {}
+    node_dir = SCRIPT_DIR / "./data/USA-road-d.BAY.co"
 
-    for raw in tqdm(f, desc="Parsing .gr"):
-        line = raw.strip()
-        if not line or line[0] == "c":
-            continue
-        parts = line.split()
-        if parts[0] == "a":
-            try:
-                _, u_s, v_s, w_s = parts[:4]
-            except ValueError:
-                # Skip malformed line
-                continue
-            u = int(u_s)
-            v = int(v_s)
-            # weights may be integers (signed) in the DIMACS format
-            try:
-                w = int(w_s)
-            except ValueError:
-                # fallback to float
-                w = float(w_s)
-            # Add nodes (NetworkX will create them automatically)
-            DG.add_edge(u, v, weight=w)
+    with open(node_dir, "r") as node_file:
+        for line in node_file:
+            if line.startswith("v"):
+                parts = line.split()
+                node_id = int(parts[1])
+                long = int(parts[2])
+                lat = int(parts[3])
+                nodeDict[node_id] = Node(node_id, lat, long)
 
-    f.close()
-    return DG
+    return nodeDict
 
 
-def parse_co(f):
-    """
-    Parse .co coordinate content and return dict: node_id -> (x, y)
-    """
-    coords = {}
+def load_paths():
+    pathDict: dict[int, list[Path]] = {}
+    path_dir = SCRIPT_DIR / "./data/USA-road-d.BAY.gr"
 
-    for raw in f:
-        line = raw.strip()
-        if not line or line[0] == "c":
-            continue
-        parts = line.split()
-        if parts[0] == "p":
-            continue
-        if parts[0] == "v":
-            try:
-                _, id_s, x_s, y_s = parts[:4]
-            except ValueError:
-                continue
-            nid = int(id_s)
-            x = float(x_s)
-            y = float(y_s)
-            coords[nid] = (x, y)
+    with open(path_dir, "r") as path_file:
+        for line in path_file:
+            if line.startswith("a"):
+                line = line.split()
+                from_node = int(line[1])
+                to_node = int(line[2])
+                cost = int(line[3])
 
-    return coords
+                if from_node in pathDict:
+                    pathDict[from_node].append(Path(from_node, to_node, cost))
+                else:
+                    pathDict[from_node] = [Path(from_node, to_node, cost)]
+    return pathDict
 
 
 if __name__ == "__main__":
-    with open(
-        "/home/agentolek/UC3M/heuristics/heuristics-optimization-project2/parte_2/data/USA-road-d.BAY.gr",
-        "r",
-    ) as f:
-        DG = parse_gr(f)
+    print("Loading nodes...")
+    nodes = load_nodes()
+    print(f"Loaded {len(nodes.keys())} nodes.\n")
 
-    with open(
-        "/home/agentolek/UC3M/heuristics/heuristics-optimization-project2/parte_2/data/USA-road-d.BAY.co",
-        "r",
-    ) as f:
-        coords = parse_co(f)
-
-    print(f"Attaching coords for {len(coords)} nodes (if present)...")
-    nx.set_node_attributes(
-        DG, values={nid: {"pos": coords[nid]} for nid in coords if nid in DG.nodes}
-    )
-
-    print("Graph loaded.")
-    print("Nodes:", DG.number_of_nodes(), "Edges:", DG.number_of_edges())
-    print(list(DG.successors(4)))
+    print("Loading paths...")
+    paths = load_paths()
+    print(f"Loaded {len(paths)} paths.")

@@ -29,7 +29,7 @@ class AStarSearch:
         for i, dst_node in enumerate(dst_nodes):
             # no need to reevaluate node if in closed list
             if dst_node in self.closed_list:
-                break
+                continue
             # for all others update values for cost, heuristic cost, parent
             dst_node.cost = node.cost + paths[i].cost
             dst_node.heuristic_cost = self.heuristic(dst_node, goal)
@@ -37,8 +37,6 @@ class AStarSearch:
             self.open_list.insert(dst_node)
 
     def add_to_closed_list(self, node: Node) -> None:
-        if node.parent is None:  # covers edge case of root node
-            node.cost = 0
         self.closed_list.add(node)
 
     def create_node_path(self, node: Node) -> tuple[Node, ...]:
@@ -46,9 +44,12 @@ class AStarSearch:
         while node.parent is not None:
             ret_list.append(node.parent)
             node = node.parent
-        return tuple(ret_list)
+        return tuple(reversed(ret_list))
 
-    def run(self, start: Node, goal: Node) -> tuple[tuple[Node, ...], float]:
+    def run(self, start_id: int, goal_id: int) -> tuple[tuple[Node, ...], float]:
+        start = self.node_dict[start_id]
+        start.cost = 0
+        goal = self.node_dict[goal_id]
         # reset lists between runs
         self.open_list = OpenList([start])
         self.closed_list = set()
@@ -57,6 +58,7 @@ class AStarSearch:
             selected_node = self.open_list.get_min()
             # check if selected_node is goal
             if selected_node == goal:
+                self.add_to_closed_list(selected_node)
                 break
             # "expand" selected Node
             self.expand_node(selected_node, goal)

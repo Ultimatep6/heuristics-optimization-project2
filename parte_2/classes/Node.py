@@ -19,8 +19,13 @@ class Node:
             return self.id == value.id
         raise NotImplementedError
 
-    def __le__(self, other: "Node"):
-        return self.cost + self._heuristic_cost < other.cost + other._heuristic_cost
+    def __lt__(self, other):
+        if isinstance(other, Node):
+            return self.cost + self._heuristic_cost < other.cost + other._heuristic_cost
+        raise NotImplementedError
+
+    def __str__(self) -> str:
+        return str(self.id)
 
     @property
     def lat(self):
@@ -50,7 +55,7 @@ class Node:
 
     @parent.setter
     def parent(self, value):
-        if not isinstance(value, "Node"):
+        if not isinstance(value, Node):
             raise TypeError("parent must be a Node")
         elif value == self:
             raise ValueError("parent cannot be self")
@@ -63,12 +68,9 @@ class Node:
 
     @cost.setter
     def cost(self, value: float):
-        if not isinstance(value, float):
-            raise TypeError("cost must be a float")
-        elif value < 0:
+        if value < 0:
             raise ValueError("cost must be a non-negative integer")
-        else:
-            self._cost = value
+        self._cost = value
 
     @property
     def heuristic_cost(self):
@@ -76,9 +78,6 @@ class Node:
 
     @heuristic_cost.setter
     def heuristic_cost(self, value: float):
-        if not isinstance(value, float):
-            raise TypeError("heuristic cost must be a float")
-        elif value < 0:
+        if value < 0:
             raise ValueError("heuristic cost must be a non-negative integer")
-        else:
-            self._heuristic_cost = value
+        self._heuristic_cost = value
