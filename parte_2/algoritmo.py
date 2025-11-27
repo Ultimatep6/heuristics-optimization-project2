@@ -2,10 +2,18 @@ from collections.abc import Callable
 from classes.Node import Node
 from classes.Path import Path
 from abierta import OpenList
+from math import cos
+from statistics import mean
 
 
 def no_sqrt_euclidian(node1: Node, node2: Node) -> float:
-    return (node1.long - node2.long) ** 2 + (node1.lat - node2.lat) ** 2
+    # Length in km of 1° of longitude = 40075 km * cos( latitude ) / 360
+    # Length in km of 1° of latitude = always 111.32 km
+    # euclidean distance over a sphere, isn't perfect but is admissible
+    return (
+        (40075000 * cos(mean([node1.lat, node2.lat])) / 360 * (node1.long - node2.long)) ** 2
+        + ((node1.lat - node2.lat) * 111320) ** 2
+    )
 
 
 class AStarSearch:

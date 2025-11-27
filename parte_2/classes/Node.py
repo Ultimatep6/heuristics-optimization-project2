@@ -21,7 +21,9 @@ class Node:
 
     def __lt__(self, other):
         if isinstance(other, Node):
-            return self.cost + self._heuristic_cost < other.cost + other._heuristic_cost
+            if self.cost + self.heuristic_cost == other.cost + other.heuristic_cost:
+                return self.heuristic_cost < other.heuristic_cost
+            return self.cost + self.heuristic_cost < other.cost + other.heuristic_cost
         raise NotImplementedError
 
     def __str__(self) -> str:

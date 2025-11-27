@@ -5,9 +5,9 @@ import pathlib
 SCRIPT_DIR = pathlib.Path(__file__).resolve().parent
 
 
-def load_nodes():
+def load_nodes(node_fn: str = "USA-road-d.BAY.co"):
     nodeDict = {}
-    node_dir = SCRIPT_DIR / "./data/USA-road-d.BAY.co"
+    node_dir = SCRIPT_DIR / "data" / node_fn
 
     with open(node_dir, "r") as node_file:
         for line in node_file:
@@ -21,9 +21,9 @@ def load_nodes():
     return nodeDict
 
 
-def load_paths():
+def load_paths(path_fn: str = "USA-road-d.BAY.gr"):
     pathDict: dict[int, list[Path]] = {}
-    path_dir = SCRIPT_DIR / "./data/USA-road-d.BAY.gr"
+    path_dir = SCRIPT_DIR / "data" / path_fn
 
     with open(path_dir, "r") as path_file:
         for line in path_file:
