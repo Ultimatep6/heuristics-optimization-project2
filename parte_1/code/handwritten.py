@@ -1,6 +1,9 @@
 from data_gen import read_data
 from constraints_pack import no_three_horizontal,no_three_vertical, same_cell_const, num_var_const
 
+"""Debugging Script to compare hand written solutions to solver and to check the number of constraint generated"""
+
+
 init_config = read_data(r'../in_files/handwritten.in')
 state = {}
 

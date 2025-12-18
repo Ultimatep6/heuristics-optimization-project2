@@ -9,6 +9,7 @@ class Solver:
     def __init__(self, in_dir='../in_files/default.in'):
         self.in_dir = in_dir
         self.problem = constraint.Problem()
+        ## Keep count of the number of constraints
         self.constraint_count  = {
             'same_cell_const': 0,
             'no_three_horizontal': 0,
@@ -16,6 +17,7 @@ class Solver:
             'num_var_const_row': 0,
             'num_var_const_col': 0
         }
+
 
     def setup_variables(self):
         self.init_config = read_data(self.in_dir)
@@ -42,9 +44,10 @@ class Solver:
                 self.problem.addVariable(f'O_{i}_{j}', [1, 0])
 
     def setup_constraints(self):
+        # Iterate through each cell in the grid and generate constraints for that cell
         for i in range(self.rows):
             for j in range(self.cols):
-                # Define the variable names
+                # Define the variable names for the library to use
                 X_cell_var = f'X_{i}_{j}'
                 O_cell_var = f'O_{i}_{j}'
 
@@ -53,7 +56,7 @@ class Solver:
                 # Increment constraint count
                 self.constraint_count['same_cell_const'] += 1
                 
-                # Constraints for no three in a row/column
+                # Constraints for no three in a row/column, for both X and O
                 if j + 2 < self.cols:
                     self.problem.addConstraint(no_three_horizontal,
                                                (f'X_{i}_{j}', f'X_{i}_{j+1}', f'X_{i}_{j+2}'))
