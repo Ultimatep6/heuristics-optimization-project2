@@ -9,9 +9,27 @@ from statistics import mean
 def no_sqrt_euclidian(node1: Node, node2: Node) -> float:
     # Length in km of 1° of longitude = 40075 km * cos( latitude ) / 360
     # Length in km of 1° of latitude = always 111.32 km
+    # this IS NOT admissible
+    return (
+        40075000
+        * math.cos(math.radians(mean([node1.lat * 10e-7, node2.lat * 10e-7])))
+        / 360
+        * (node1.long * 10e-7 - node2.long * 10e-7)
+    ) ** 2 + ((node1.lat - node2.lat) * 10e-7 * 111320) ** 2
+
+
+def sqrt_euclidian(node1: Node, node2: Node) -> float:
+    # Length in km of 1° of longitude = 40075 km * cos( latitude ) / 360
+    # Length in km of 1° of latitude = always 111.32 km
     # euclidean distance over a sphere, isn't perfect but is admissible
     return math.sqrt(
-        (40075000 * math.cos(math.radians(mean([node1.lat * 10e-7, node2.lat * 10e-7]))) / 360 * (node1.long * 10e-7 - node2.long * 10e-7)) ** 2
+        (
+            40075000
+            * math.cos(math.radians(mean([node1.lat * 10e-7, node2.lat * 10e-7])))
+            / 360
+            * (node1.long * 10e-7 - node2.long * 10e-7)
+        )
+        ** 2
         + ((node1.lat - node2.lat) * 10e-7 * 111320) ** 2
     )
 
@@ -23,9 +41,12 @@ def haversine(node1: Node, node2: Node) -> float:
     delta_phi = (node2.lat - node1.lat) * 10e-7 * math.pi / 180
     delta_lambda = (node2.long - node1.long) * 10e-7 * math.pi / 180
 
-    a = math.sin(delta_phi / 2) ** 2 + math.cos(phi_1) * math.cos(phi_2) * math.sin(delta_lambda / 2) ** 2
+    a = (
+        math.sin(delta_phi / 2) ** 2
+        + math.cos(phi_1) * math.cos(phi_2) * math.sin(delta_lambda / 2) ** 2
+    )
 
-    c = 2 * math.atan2(math.sqrt(a), math.sqrt(1-a))
+    c = 2 * math.atan2(math.sqrt(a), math.sqrt(1 - a))
 
     return R * c
 
