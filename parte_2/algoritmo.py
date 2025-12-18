@@ -30,6 +30,9 @@ class AStarSearch:
         self.path_dict = path_dict
         self.heuristic = no_sqrt_euclidian if heuristic is None else heuristic
 
+    def get_num_expanded_nodes(self) -> int:
+        return len(self.closed_list)
+
     def expand_node(self, node: Node, goal: Node) -> None:
         # find all children of node
         paths: list[Path] = self.path_dict[node.id]
