@@ -1,4 +1,4 @@
-from algoritmo import AStarSearch, haversine, no_sqrt_euclidian
+from algoritmo import AStarSearch, haversine, sqrt_euclidian
 from grafo import load_nodes, load_paths
 from argparse import ArgumentParser
 import time
@@ -74,6 +74,7 @@ def gen_random_start_end(
 
 def run_experiment(rand_pairs, searcher: AStarSearch):
     times = []
+    costs = []
     expanded_nodes = 0
     for pair in tqdm(rand_pairs):
         new_searcher = AStarSearch(  # new searchers needed as node_dicts are edited in algorithm
@@ -81,14 +82,15 @@ def run_experiment(rand_pairs, searcher: AStarSearch):
             path_dict=searcher.path_dict,
             heuristic=searcher.heuristic,
         )
-        start_time = time.perf_counter_ns()
-        _, _ = new_searcher.run(pair[0], pair[1])
-        calc_time = time.perf_counter_ns() - start_time
+        start_time = time.process_time_ns()
+        _, cost = new_searcher.run(pair[0], pair[1])
+        calc_time = time.process_time_ns() - start_time
 
         times.append(calc_time)
+        costs.append(cost)
         expanded_nodes += new_searcher.get_num_expanded_nodes()
 
-    return times, expanded_nodes
+    return costs, times, expanded_nodes
 
 
 if __name__ == "__main__":
@@ -105,17 +107,17 @@ if __name__ == "__main__":
 
     print("----------------- Brute Force -----------------")
     searcher = AStarSearch(node_dict, path_dict, heuristic=lambda x, y: 1)  # epsilon heuristic
-    times, expanded_nodes = run_experiment(rand_pairs, searcher)
-    print_output(node_dict, path_dict, cost=0, time=sum(times), nr_expanded=expanded_nodes)
+    costs, times, expanded_nodes = run_experiment(rand_pairs, searcher)
+    print_output(node_dict, path_dict, cost=sum(costs), time=sum(times), nr_expanded=expanded_nodes)
 
     print("----------------- A* haversine -----------------")
     searcher = AStarSearch(node_dict, path_dict, heuristic=haversine)  # epsilon heuristic
-    times, expanded_nodes = run_experiment(rand_pairs, searcher)
+    costs, times, expanded_nodes = run_experiment(rand_pairs, searcher)
 
-    print_output(node_dict, path_dict, cost=0, time=sum(times), nr_expanded=expanded_nodes)
+    print_output(node_dict, path_dict, cost=sum(costs), time=sum(times), nr_expanded=expanded_nodes)
 
-    print("----------------- A* no_sqrt_euclidean -----------------")
-    searcher = AStarSearch(node_dict, path_dict, heuristic=no_sqrt_euclidian)  # epsilon heuristic
-    times, expanded_nodes = run_experiment(rand_pairs, searcher)
+    print("----------------- A* sqrt_euclidean -----------------")
+    searcher = AStarSearch(node_dict, path_dict, heuristic=sqrt_euclidian)  # epsilon heuristic
+    costs, times, expanded_nodes = run_experiment(rand_pairs, searcher)
 
-    print_output(node_dict, path_dict, cost=0, time=sum(times), nr_expanded=expanded_nodes)
+    print_output(node_dict, path_dict, cost=sum(costs), time=sum(times), nr_expanded=expanded_nodes)
