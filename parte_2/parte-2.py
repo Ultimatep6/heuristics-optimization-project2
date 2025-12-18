@@ -77,10 +77,12 @@ def run_experiment(rand_pairs, searcher: AStarSearch):
     costs = []
     expanded_nodes = 0
     for pair in tqdm(rand_pairs):
-        new_searcher = AStarSearch(  # new searchers needed as node_dicts are edited in algorithm
-            copy.deepcopy(searcher.node_dict),
-            path_dict=searcher.path_dict,
-            heuristic=searcher.heuristic,
+        new_searcher = (
+            AStarSearch(  # new searchers needed as node_dicts are edited in algorithm
+                copy.deepcopy(searcher.node_dict),
+                path_dict=searcher.path_dict,
+                heuristic=searcher.heuristic,
+            )
         )
         start_time = time.process_time_ns()
         _, cost = new_searcher.run(pair[0], pair[1])
@@ -98,26 +100,35 @@ if __name__ == "__main__":
     node_dict = load_nodes(node_fn=args.map_name + ".co")
     path_dict = load_paths(path_fn=args.map_name + ".gr")
 
-    # if args.brute_force:
-    #     searcher = AStarSearch(copy.copy(node_dict), path_dict, heuristic=lambda x, y: 1)  # epsilon heuristic
-    # else:
-    #     searcher = AStarSearch(copy.copy(node_dict), path_dict=path_dict, heuristic=haversine)
+    if args.brute_force:
+        searcher = AStarSearch(
+            copy.copy(node_dict), path_dict, heuristic=lambda x, y: 1
+        )  # epsilon heuristic
+    else:
+        searcher = AStarSearch(
+            copy.copy(node_dict), path_dict=path_dict, heuristic=haversine
+        )
 
-    rand_pairs = gen_random_start_end(50, node_dict, min_dist=20000)
+    # rand_pairs = gen_random_start_end(5, node_dict, min_dist=200000)
 
-    print("----------------- Brute Force -----------------")
-    searcher = AStarSearch(node_dict, path_dict, heuristic=lambda x, y: 1)  # epsilon heuristic
-    costs, times, expanded_nodes = run_experiment(rand_pairs, searcher)
-    print_output(node_dict, path_dict, cost=sum(costs), time=sum(times), nr_expanded=expanded_nodes)
+    exec_time = time.perf_counter_ns()
+    path, cost = searcher.run(args.start_node, args.end_node)
+    exec_time = time.perf_counter_ns() - exec_time
 
-    print("----------------- A* haversine -----------------")
-    searcher = AStarSearch(node_dict, path_dict, heuristic=haversine)  # epsilon heuristic
-    costs, times, expanded_nodes = run_experiment(rand_pairs, searcher)
+    # print("----------------- Brute Force -----------------")
+    # searcher = AStarSearch(node_dict, path_dict, heuristic=lambda x, y: 1)  # epsilon heuristic
+    # costs, times, expanded_nodes = run_experiment(rand_pairs, searcher)
+    # print_output(node_dict, path_dict, cost=sum(costs), time=sum(times), nr_expanded=expanded_nodes)
 
-    print_output(node_dict, path_dict, cost=sum(costs), time=sum(times), nr_expanded=expanded_nodes)
+    # print("----------------- A* haversine -----------------")
+    # searcher = AStarSearch(node_dict, path_dict, heuristic=haversine)  # epsilon heuristic
+    # costs, times, expanded_nodes = run_experiment(rand_pairs, searcher)
 
-    print("----------------- A* sqrt_euclidean -----------------")
-    searcher = AStarSearch(node_dict, path_dict, heuristic=sqrt_euclidian)  # epsilon heuristic
-    costs, times, expanded_nodes = run_experiment(rand_pairs, searcher)
-
-    print_output(node_dict, path_dict, cost=sum(costs), time=sum(times), nr_expanded=expanded_nodes)
+    print_output(
+        node_dict,
+        path_dict,
+        cost=cost,
+        time=exec_time,
+        nr_expanded=searcher.get_num_expanded_nodes(),
+    )
+    create_output_file(args.output_file, path)
