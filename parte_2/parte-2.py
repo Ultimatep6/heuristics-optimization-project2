@@ -13,6 +13,7 @@ def parse_args():
     parser.add_argument("end_node", type=int, help="End node ID")
     parser.add_argument("map_name", nargs="?", type=str, default="USA-road-d.BAY", help="Base name of the map files")
     parser.add_argument("output_file", nargs="?", type=str, default="solution.txt", help="Name of the output file")
+    parser.add_argument("--brute_force", action="store_true")
 
     return parser.parse_args()
 
@@ -43,8 +44,10 @@ if __name__ == "__main__":
     node_dict = load_nodes(node_fn=args.map_name + ".co")
     path_dict = load_paths(path_fn=args.map_name + ".gr")
 
-    searcher = AStarSearch(node_dict=node_dict, path_dict=path_dict, heuristic=no_sqrt_euclidian)
-    # brute_force_searcher = AStarSearch(node_dict, path_dict, heuristic=lambda x, y: 1)  # epsilon heuristic
+    if args.brute_force:
+        searcher = AStarSearch(node_dict, path_dict, heuristic=lambda x, y: 1)  # epsilon heuristic
+    else:
+        searcher = AStarSearch(node_dict=node_dict, path_dict=path_dict, heuristic=no_sqrt_euclidian)
 
     start_time = time.process_time_ns()
     path, cost = searcher.run(args.start_node, args.end_node)
