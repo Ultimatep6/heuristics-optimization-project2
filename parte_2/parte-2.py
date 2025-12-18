@@ -19,7 +19,7 @@ def parse_args():
 
 
 def print_output(node_dict, path_dict, cost, time, nr_expanded):
-    exec_time = round(time * 10e-9, 6)
+    exec_time = max(time*10e-9, 10e-9)
 
     print("# Vertices: \t\t", len(node_dict))
     print("# Edges: \t\t", sum([len(path_dict[key]) for key in path_dict.keys()]))
