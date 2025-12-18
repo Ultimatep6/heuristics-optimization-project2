@@ -1,4 +1,4 @@
-from algoritmo import AStarSearch
+from algoritmo import AStarSearch, haversine, no_sqrt_euclidian
 from grafo import load_nodes, load_paths
 from argparse import ArgumentParser
 import time
@@ -43,8 +43,8 @@ if __name__ == "__main__":
     node_dict = load_nodes(node_fn=args.map_name + ".co")
     path_dict = load_paths(path_fn=args.map_name + ".gr")
 
-    searcher = AStarSearch(node_dict=node_dict, path_dict=path_dict)
-    brute_force_searcher = AStarSearch(node_dict, path_dict, heuristic=lambda x, y: 1)  # epsilon heuristic
+    searcher = AStarSearch(node_dict=node_dict, path_dict=path_dict, heuristic=no_sqrt_euclidian)
+    # brute_force_searcher = AStarSearch(node_dict, path_dict, heuristic=lambda x, y: 1)  # epsilon heuristic
 
     start_time = time.process_time_ns()
     path, cost = searcher.run(args.start_node, args.end_node)
@@ -52,14 +52,3 @@ if __name__ == "__main__":
 
     print_output(node_dict, path_dict, cost, calc_time, searcher.get_num_expanded_nodes())
     create_output_file(args.output_file, path)
-    # for i, nd in enumerate(path):
-    #     print(f"Step {i}: id -", nd.id, "cost -", round(nd.cost / 1000, 3))
-    # print("--------------")
-    # print("A* Cost:", cost / 1000, "km")
-
-    # brute_force_searcher = AStarSearch(node_dict, path_dict, heuristic=lambda x, y: 1)  # epsilon heuristic
-    # path, cost = searcher.run(1, 10)
-    # # for i, nd in enumerate(path):
-    # #     print(f"Step {i}: id -", nd.id, "cost -", round(nd.cost / 1000, 3))
-    # # print("--------------")
-    # print("Brute Force (Dijkstra) Cost:", cost / 1000, "km")

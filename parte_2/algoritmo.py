@@ -2,7 +2,7 @@ from collections.abc import Callable
 from classes.Node import Node
 from classes.Path import Path
 from abierta import OpenList
-from math import cos
+import math
 from statistics import mean
 
 
@@ -10,15 +10,32 @@ def no_sqrt_euclidian(node1: Node, node2: Node) -> float:
     # Length in km of 1° of longitude = 40075 km * cos( latitude ) / 360
     # Length in km of 1° of latitude = always 111.32 km
     # euclidean distance over a sphere, isn't perfect but is admissible
-    return (
-        (40075000 * cos(mean([node1.lat, node2.lat])) / 360 * (node1.long - node2.long)) ** 2
+    return math.sqrt(
+        (40075000 * math.cos(mean([node1.lat, node2.lat])) / 360 * (node1.long - node2.long)) ** 2
         + ((node1.lat - node2.lat) * 111320) ** 2
     )
+
+
+def haversine(node1: Node, node2: Node) -> float:
+    R = 6371e3
+    phi_1 = node1.lat * math.pi / 180
+    phi_2 = node2.lat * math.pi / 180
+    delta_phi = (node2.lat - node1.lat) * math.pi / 180
+    delta_lambda = (node2.long - node1.long) * math.pi / 180
+
+    a = math.sin(delta_phi / 2) ** 2 + math.cos(phi_1) * math.cos(phi_2) * math.sin(delta_lambda / 2) ** 2
+
+    c = 2 * math.atan2(math.sqrt(a), math.sqrt(1-a))
+
+    return R * c
 
 
 class AStarSearch:
     open_list = OpenList()
     closed_list = set()
+
+    base_scores = {}
+    heuristic_scores = {}
 
     def __init__(
         self,
@@ -41,11 +58,14 @@ class AStarSearch:
             # no need to reevaluate node if in closed list
             if dst_node in self.closed_list:
                 continue
-            # for all others update values for cost, heuristic cost, parent
-            dst_node.cost = node.cost + paths[i].cost
-            dst_node.heuristic_cost = self.heuristic(dst_node, goal)
-            dst_node.parent = node
-            self.open_list.insert(dst_node)
+            # update values for cost, heuristic cost, parent if new cost is best
+            temp_cost = node.cost + paths[i].cost
+            if temp_cost < self.base_scores.get(dst_node.id, math.inf):
+                self.base_scores[dst_node.id] = temp_cost
+                dst_node.cost = temp_cost
+                dst_node.heuristic_cost = self.heuristic(dst_node, goal)
+                dst_node.parent = node
+                self.open_list.insert(dst_node)
 
     def add_to_closed_list(self, node: Node) -> None:
         self.closed_list.add(node)
@@ -64,9 +84,15 @@ class AStarSearch:
         # reset lists between runs
         self.open_list = OpenList([start])
         self.closed_list = set()
+        self.base_scores = {}
+        self.heuristic_scores = {}
+
         while True:
             # get min from open list
             selected_node = self.open_list.get_min()
+            # check if selected_node isn't outdated
+            if selected_node.cost > self.base_scores.get(selected_node.id, math.inf):
+                continue
             # check if selected_node is goal
             if selected_node == goal:
                 self.add_to_closed_list(selected_node)
