@@ -1,6 +1,6 @@
 # Optimization and Heuristics Project 2
 By:
-- Matteo Oliver Bekink : 
+- Matteo Oliver Bekink , 575997
 - Aleksander Nowak, 576069
 
 ## Constraint Satisfaction Problem
